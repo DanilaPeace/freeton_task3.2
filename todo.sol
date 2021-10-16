@@ -11,6 +11,7 @@ contract todo {
 
     mapping(int8 => Task) public toDoList;
     int8 taskCount = 0;
+    int8 openTaskCount;
 
     constructor() public{
         require(tvm.pubkey() != 0, 101);
@@ -26,13 +27,18 @@ contract todo {
 
     function addTask(string taskName) public modifyTasks {
         taskCount++;
+        openTaskCount++;
         uint32 taskTime = now;
         // Create new task
         toDoList.getSet(taskCount, Task(taskName, taskTime, false));   
     }
 
-    function getTasksAmount() public returns(int8) {
-        return taskCount;
+    function getOpenTasksAmount() public returns(int8) {
+        return openTaskCount;
+    }
+
+    function getToDoList() public returns(mapping (int8=>Task)){
+        return toDoList;
     }
 
     function taskInfo(int8 taskKey) public returns(Task){
@@ -52,10 +58,12 @@ contract todo {
         }
         toDoList = newToDoList;
         taskCount--;
+        openTaskCount--;
     }
 
     function markAsDid(int8 taskKey) public modifyTasks {
         require(toDoList.exists(taskKey), 103, "There is no task with this key!");
         toDoList[taskKey].isDid = true;
+        openTaskCount--;
     }
 }
