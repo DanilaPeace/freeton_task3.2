@@ -37,8 +37,13 @@ contract todo {
         return openTaskCount;
     }
 
-    function getToDoList() public returns(mapping (int8=>Task)){
-        return toDoList;
+    function getToDoList() public returns(string[]){
+        string[] taskList;
+        for((int8 key, Task task) : toDoList) {
+            taskList.push(format("{}. {}.", key, task.taskName));               
+        }
+
+        return taskList;
     }
 
     function taskInfo(int8 taskKey) public returns(Task){
@@ -52,6 +57,7 @@ contract todo {
 
         // Change the toDoList: all tasks are shifted to one element
         mapping(int8 => Task) newToDoList;
+
         int8 newTaskCounter = 1; 
         for((int8 key, Task task) : toDoList) {
             newToDoList[newTaskCounter++] = task;
@@ -63,6 +69,7 @@ contract todo {
 
     function markAsDid(int8 taskKey) public modifyTasks {
         require(toDoList.exists(taskKey), 103, "There is no task with this key!");
+        require(!toDoList[taskKey].isDid, 104, "This task is already completed!");
         toDoList[taskKey].isDid = true;
         openTaskCount--;
     }
