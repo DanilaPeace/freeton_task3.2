@@ -2,7 +2,6 @@ pragma ton-solidity >= 0.35.0;
 pragma AbiHeader expire;
 
 contract todo {
-
     struct Task {
         string taskName;
         uint32 time;
@@ -12,6 +11,17 @@ contract todo {
     mapping(int8 => Task) public toDoList;
     int8 taskCount = 0;
     int8 openTaskCount;
+    
+    modifier modifyTasks() {
+        require(tvm.pubkey() == msg.pubkey(), 102);
+        tvm.accept();
+        _;
+    }
+
+    modifier taskExistenceChecking(int8 taskKey) {
+        require(toDoList.exists(taskKey), 103, "There is no task with this key!");
+        _;
+    }
 
     constructor() public{
         require(tvm.pubkey() != 0, 101);
@@ -19,11 +29,6 @@ contract todo {
         tvm.accept();
     }
 
-    modifier modifyTasks() {
-        require(tvm.pubkey() == msg.pubkey(), 102);
-        tvm.accept();
-        _;
-    }
 
     function addTask(string taskName) public modifyTasks {
         taskCount++;
@@ -46,13 +51,11 @@ contract todo {
         return taskList;
     }
 
-    function taskInfo(int8 taskKey) public returns(Task){
-        require(toDoList.exists(taskKey), 103, "There is no task with this key!");
+    function taskInfo(int8 taskKey) public view taskExistenceChecking(taskKey) returns(Task){
         return toDoList[taskKey];
     }
 
-    function removeTask(int8 taskKey) public modifyTasks {
-        require(toDoList.exists(taskKey), 103, "There is no task with this key!");
+    function removeTask(int8 taskKey) public modifyTasks taskExistenceChecking(taskKey){
         delete toDoList[taskKey];
 
         // Change the toDoList: all tasks are shifted to one element
@@ -67,8 +70,7 @@ contract todo {
         openTaskCount--;
     }
 
-    function markAsDid(int8 taskKey) public modifyTasks {
-        require(toDoList.exists(taskKey), 103, "There is no task with this key!");
+    function markAsDid(int8 taskKey) public modifyTasks taskExistenceChecking(taskKey){
         require(!toDoList[taskKey].isDid, 104, "This task is already completed!");
         toDoList[taskKey].isDid = true;
         openTaskCount--;
