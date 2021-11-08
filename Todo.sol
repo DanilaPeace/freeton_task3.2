@@ -1,7 +1,7 @@
 pragma ton-solidity >= 0.35.0;
 pragma AbiHeader expire;
 
-contract todo {
+contract Todo {
     struct Task {
         string taskName;
         uint32 time;
@@ -12,7 +12,7 @@ contract todo {
     int8 taskCount = 0;
     int8 openTaskCount;
     
-    modifier modifyTasks() {
+    modifier onlyOwner() {
         require(tvm.pubkey() == msg.pubkey(), 102);
         tvm.accept();
         _;
@@ -30,7 +30,7 @@ contract todo {
     }
 
 
-    function addTask(string taskName) public modifyTasks {
+    function addTask(string taskName) public onlyOwner {
         taskCount++;
         openTaskCount++;
         uint32 taskTime = now;
@@ -55,7 +55,7 @@ contract todo {
         return toDoList[taskKey];
     }
 
-    function removeTask(int8 taskKey) public modifyTasks taskExistenceChecking(taskKey){
+    function removeTask(int8 taskKey) public onlyOwner taskExistenceChecking(taskKey){
         delete toDoList[taskKey];
 
         // Change the toDoList: all tasks are shifted to one element
@@ -70,7 +70,7 @@ contract todo {
         openTaskCount--;
     }
 
-    function markAsDid(int8 taskKey) public modifyTasks taskExistenceChecking(taskKey){
+    function markAsDid(int8 taskKey) public onlyOwner taskExistenceChecking(taskKey){
         require(!toDoList[taskKey].isDid, 104, "This task is already completed!");
         toDoList[taskKey].isDid = true;
         openTaskCount--;

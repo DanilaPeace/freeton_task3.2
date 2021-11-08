@@ -1,6 +1,5 @@
 {
 	"ABI version": 2,
-	"version": "2.1",
 	"header": ["time", "expire"],
 	"functions": [
 		{
@@ -13,7 +12,7 @@
 		{
 			"name": "addTask",
 			"inputs": [
-				{"name":"taskName","type":"string"}
+				{"name":"taskName","type":"bytes"}
 			],
 			"outputs": [
 			]
@@ -31,7 +30,7 @@
 			"inputs": [
 			],
 			"outputs": [
-				{"name":"value0","type":"string[]"}
+				{"name":"value0","type":"bytes[]"}
 			]
 		},
 		{
@@ -40,7 +39,7 @@
 				{"name":"taskKey","type":"int8"}
 			],
 			"outputs": [
-				{"components":[{"name":"taskName","type":"string"},{"name":"time","type":"uint32"},{"name":"isDid","type":"bool"}],"name":"value0","type":"tuple"}
+				{"components":[{"name":"taskName","type":"bytes"},{"name":"time","type":"uint32"},{"name":"isDid","type":"bool"}],"name":"value0","type":"tuple"}
 			]
 		},
 		{
@@ -64,20 +63,12 @@
 			"inputs": [
 			],
 			"outputs": [
-				{"components":[{"name":"taskName","type":"string"},{"name":"time","type":"uint32"},{"name":"isDid","type":"bool"}],"name":"toDoList","type":"map(int8,tuple)"}
+				{"components":[{"name":"taskName","type":"bytes"},{"name":"time","type":"uint32"},{"name":"isDid","type":"bool"}],"name":"toDoList","type":"map(int8,tuple)"}
 			]
 		}
 	],
 	"data": [
 	],
 	"events": [
-	],
-	"fields": [
-		{"name":"_pubkey","type":"uint256"},
-		{"name":"_timestamp","type":"uint64"},
-		{"name":"_constructorFlag","type":"bool"},
-		{"components":[{"name":"taskName","type":"string"},{"name":"time","type":"uint32"},{"name":"isDid","type":"bool"}],"name":"toDoList","type":"map(int8,tuple)"},
-		{"name":"taskCount","type":"int8"},
-		{"name":"openTaskCount","type":"int8"}
 	]
 }
