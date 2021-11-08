@@ -5,10 +5,10 @@ contract Todo {
     struct Task {
         string taskName;
         uint32 time;
-        bool isDid;
+        bool isDone;
     }
 
-    mapping(int8 => Task) public toDoList;
+    mapping(int8 => Task) public m_toDoList;
     int8 taskCount = 0;
     int8 openTaskCount;
     
@@ -19,7 +19,7 @@ contract Todo {
     }
 
     modifier taskExistenceChecking(int8 taskKey) {
-        require(toDoList.exists(taskKey), 103, "There is no task with this key!");
+        require(m_toDoList.exists(taskKey), 103, "There is no task with this key!");
         _;
     }
 
@@ -35,44 +35,41 @@ contract Todo {
         openTaskCount++;
         uint32 taskTime = now;
         // Create new task
-        toDoList.getSet(taskCount, Task(taskName, taskTime, false));   
+        m_toDoList[taskCount] = Task(taskName, taskTime, false);
     }
 
     function getOpenTasksAmount() public returns(int8) {
         return openTaskCount;
     }
 
-    function getToDoList() public returns(string[]){
-        string[] taskList;
-        for((int8 key, Task task) : toDoList) {
+    function getToDoList() public returns(string[] taskList){
+        for((int8 key, Task task) : m_toDoList) {
             taskList.push(format("{}. {}.", key, task.taskName));               
         }
-
-        return taskList;
     }
 
     function taskInfo(int8 taskKey) public view taskExistenceChecking(taskKey) returns(Task){
-        return toDoList[taskKey];
+        return m_toDoList[taskKey];
     }
 
-    function removeTask(int8 taskKey) public onlyOwner taskExistenceChecking(taskKey){
-        delete toDoList[taskKey];
-
+    function removeTask(int8 taskKey) public onlyOwner taskExistenceChecking(taskKey) returns(string){
+        delete m_toDoList[taskKey];
         // Change the toDoList: all tasks are shifted to one element
         mapping(int8 => Task) newToDoList;
 
-        int8 newTaskCounter = 1; 
-        for((int8 key, Task task) : toDoList) {
-            newToDoList[newTaskCounter++] = task;
+        int8 newTaskCounter = 0; 
+        for((int8 key, Task task) : m_toDoList) {
+            newTaskCounter++;
+            newToDoList[newTaskCounter] = task;
         }
-        toDoList = newToDoList;
+        m_toDoList = newToDoList;
         taskCount--;
         openTaskCount--;
     }
 
     function markAsDid(int8 taskKey) public onlyOwner taskExistenceChecking(taskKey){
-        require(!toDoList[taskKey].isDid, 104, "This task is already completed!");
-        toDoList[taskKey].isDid = true;
+        require(!m_toDoList[taskKey].isDone, 104, "This task is already completed!");
+        m_toDoList[taskKey].isDone = true;
         openTaskCount--;
     }
 }
